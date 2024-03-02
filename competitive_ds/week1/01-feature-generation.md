@@ -1307,7 +1307,7 @@ Shrink model to first 129 iterations.
 
 ## **Зачем нужна визуализация в соревновательном анализе данных**
 
-![image-20240302211441226](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302211441226.png)
+![image-20240302211441226](assets/image-20240302211441226.png)
 
 Качественная визуализация хорошо сочетается с генерацией и анализом признаков — легко понять какие признаки будут полезны. Визуализация может здорово помочь разобраться, как устроены данные или как работает модель, а также проверить наличие зависимости визуально.
 
@@ -1364,7 +1364,7 @@ rides_info.head(3)
 rides_info.hist();  # Вызываем функцию hist( )
 ```
 
-![image-20240302211630840](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302211630840.png)
+![image-20240302211630840](assets/image-20240302211630840.png)
 
 Видно, что графики получились мелкие и текстовая информация накладывается друг на друга, также столбец «Пол» определился как числовой, хотя он категориальный.
 
@@ -1375,7 +1375,7 @@ rides_info.hist();  # Вызываем функцию hist( )
 rides_info.drop("sex", axis=1).hist(figsize=(20, 15), layout=(-1, 5));
 ```
 
-![image-20240302211700490](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302211700490.png)
+![image-20240302211700490](assets/image-20240302211700490.png)
 
 ### **Распределение через боксплот**
 
@@ -1389,7 +1389,7 @@ rides_info.boxplot(
 );
 ```
 
-![image-20240302211753557](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302211753557.png)
+![image-20240302211753557](assets/image-20240302211753557.png)
 
 ### **Тепловые карты зависимостей численных и категориальных переменных**
 
@@ -1482,7 +1482,7 @@ g = sns.relplot(
 g.set_xticklabels(rotation=45, horizontalalignment="right", step=2);
 ```
 
-![image-20240302212435462](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212435462.png)
+![image-20240302212435462](assets/image-20240302212435462.png)
 
 По оси х мы вытянули время. По оси y исследуемый столбец, в данном случае — `deviation_normal`. Все точки мы окрасили в соответствующий класс для наглядности.
 
@@ -1506,7 +1506,7 @@ g.set_xticklabels(g.get_xticklabels(), rotation=45, horizontalalignment="right")
 g.xaxis.set_major_locator(ticker.MultipleLocator(2));
 ```
 
-![image-20240302212503715](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212503715.png)
+![image-20240302212503715](assets/image-20240302212503715.png)
 
 ```python
 g = sns.relplot(
@@ -1521,7 +1521,7 @@ g = sns.relplot(
 g.set_xticklabels(rotation=45, horizontalalignment="right", step=2);
 ```
 
-![image-20240302212533590](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212533590.png)
+![image-20240302212533590](assets/image-20240302212533590.png)
 
 Аналогично растянули признак `user_ride_quality` во времени по оси y как исследуемый столбец. Все точки мы окрасили в соответствующий класс для наглядности.
 
@@ -1549,7 +1549,7 @@ g.set_xticklabels(rotation=45, horizontalalignment="right", step=2)
 <seaborn.axisgrid.FacetGrid at 0x7f4db554fa90>
 ```
 
-![image-20240302212603097](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212603097.png)
+![image-20240302212603097](assets/image-20240302212603097.png)
 
 **Какие признаки могут помочь различить классы поломок:**
 
@@ -1580,7 +1580,7 @@ g = sns.relplot(
 );
 ```
 
-![image-20240302212633165](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212633165.png)
+![image-20240302212633165](assets/image-20240302212633165.png)
 
 С помощью более функционального `sns.relplot()` мы пишем меньше кода и быстрее анализируем. Кстати, по графику заметно, что угол наклона у разных машин разный.
 
@@ -1600,7 +1600,7 @@ g = sns.relplot(
 );
 ```
 
-![image-20240302212742506](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212742506.png)
+![image-20240302212742506](assets/image-20240302212742506.png)
 
 > **Важно!** Полезно растягивать исследуемые признаки не только вдоль времени или численных признаков, но еще и по категориальным переменным.
 
@@ -1618,7 +1618,7 @@ sns.relplot(
 );
 ```
 
-![image-20240302212817935](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212817935.png)
+![image-20240302212817935](assets/image-20240302212817935.png)
 
 Еще один интересный инсайт — как число инцидентов водителя зависит от его рейтинга. Легко заметить, что некоторые классы поломок свойственны поездкам с низким рейтингом. Очень рекомендуем применять метод `sns.relplot()`.
 
@@ -1651,7 +1651,7 @@ g = sns.displot(
 );
 ```
 
-![image-20240302212906456](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212906456.png)
+![image-20240302212906456](assets/image-20240302212906456.png)
 
 Многофункциональный метод `sns.displot()` — это вторая вещь после `sns.relplot()`, которую нужно запомнить и при возможности использовать.
 
@@ -1675,7 +1675,7 @@ g = sns.displot(
 ).set_xticklabels(rotation=45, horizontalalignment="right");
 ```
 
-![image-20240302212936442](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302212936442.png)
+![image-20240302212936442](assets/image-20240302212936442.png)
 
 ### **Категориальные данные и sns.catplot()**
 
@@ -1694,7 +1694,7 @@ sns.catplot(
 ).set_xticklabels(rotation=45, horizontalalignment="right");
 ```
 
-![image-20240302213025599](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302213025599.png)
+![image-20240302213025599](assets/image-20240302213025599.png)
 
 ```python
 # Варьируем в параметр kind, получаем любой вид графики
@@ -1709,7 +1709,7 @@ sns.catplot(
 ).set_xticklabels(rotation=45, horizontalalignment="right");
 ```
 
-![image-20240302213059847](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302213059847.png)
+![image-20240302213059847](assets/image-20240302213059847.png)
 
 Сходу замечаем, что поломки класса `wheel_shake` не происходят в трех сегментах машин. Многофункциональный метод `sns.catplot()` — это третья вещь после `sns.displot()` и `sns.relplot()`, которую нужно запомнить и использовать при возможности.
 
@@ -1762,7 +1762,7 @@ sns.heatmap(
 );
 ```
 
-![image-20240302213141429](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302213141429.png)
+![image-20240302213141429](assets/image-20240302213141429.png)
 
 Добавим красоты:
 
@@ -1782,7 +1782,7 @@ heatmap.set_xticklabels(
 );
 ```
 
-![image-20240302213215390](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302213215390.png)
+![image-20240302213215390](assets/image-20240302213215390.png)
 
 Видно, что части снизу и сверху от диагонали идентичны, новой информации не несут и лишь создают визуальный шум. Уберем одну из них:
 
@@ -1809,7 +1809,7 @@ heatmap.set_title(
 );
 ```
 
-![image-20240302213244335](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302213244335.png)
+![image-20240302213244335](assets/image-20240302213244335.png)
 
 ### **Связка pd.crosstab + sns.heatmap**
 
@@ -1835,7 +1835,7 @@ heatmap = sns.heatmap(
 heatmap.set_title("Тепловая карта совстречаемости", fontdict={"fontsize": 18}, pad=16);
 ```
 
-![image-20240302213356130](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302213356130.png)
+![image-20240302213356130](assets/image-20240302213356130.png)
 
 ### **Парные зависимости между переменными и sns.pairplot()**
 
@@ -1848,7 +1848,7 @@ sns.pairplot(
 );
 ```
 
-![image-20240302230222797](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302230222797.png)
+![image-20240302230222797](assets/image-20240302230222797.png)
 
 ### **sns.lmplot = sns.pairplot + умение провести прямую**
 
@@ -1864,7 +1864,7 @@ sns.lmplot(
 );
 ```
 
-![image-20240302230324561](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302230324561.png)
+![image-20240302230324561](assets/image-20240302230324561.png)
 
 ```python
 sns.lmplot(
@@ -1879,7 +1879,7 @@ sns.lmplot(
 );
 ```
 
-![image-20240302230407464](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302230407464.png)
+![image-20240302230407464](assets/image-20240302230407464.png)
 
 ### **Композиция нескольких видов графиков и sns.jointplot()**
 
@@ -1898,11 +1898,11 @@ sns.jointplot(
 );
 ```
 
-![image-20240302230502290](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302230502290.png)
+![image-20240302230502290](assets/image-20240302230502290.png)
 
 ### Карта графики Seaborn:
 
-![image-20240302230540905](/home/andrei/study/mipt_semester4/competitive_ds/week1/assets/image-20240302230540905.png)
+![image-20240302230540905](assets/image-20240302230540905.png)
 
 ## **Выводы**
 
