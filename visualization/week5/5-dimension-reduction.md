@@ -87,7 +87,7 @@ plt.axis('off')
 (-0.5, 2.5, 2.5, -0.5)
 ```
 
-![image-20240302101910083](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302101910083.png)
+![image-20240302101910083](assets/image-20240302101910083.png)
 
 ```python
 plt.figure(figsize=(5, 3))
@@ -96,7 +96,7 @@ plt.axis('off')
 plt.show()
 ```
 
-![image-20240302101946198](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302101946198.png)
+![image-20240302101946198](assets/image-20240302101946198.png)
 
 Теперь отрисуем 70 чисел из нашего датасета, чтобы посмотреть, насколько сильно они отличаются.
 
@@ -111,7 +111,7 @@ plt.yticks([])
 plt.tight_layout()
 ```
 
-![image-20240302102027509](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102027509.png)
+![image-20240302102027509](assets/image-20240302102027509.png)
 
 ### **Зачем использовать алгоритмы понижения размерности:**
 
@@ -161,7 +161,7 @@ ax2.axis('off')
 plt.show()
 ```
 
-![image-20240302102153259](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102153259.png)
+![image-20240302102153259](assets/image-20240302102153259.png)
 
 Мы видим, что полученное новое значение не сильно отличается от исходного. Да, видны переходы между цветами, но изображение все еще различимо и принципиально не отличается.
 
@@ -316,7 +316,7 @@ plt.grid(True)
 plt.show()
 ```
 
-![image-20240302102351083](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102351083.png)
+![image-20240302102351083](assets/image-20240302102351083.png)
 
 Классы в этой визуализации — это цифры, которые были представлены в датасете.
 
@@ -374,7 +374,7 @@ plt.show()
 WARNING:matplotlib.legend:No artists with labels found to put in legend.  Note that artists whose label start with an underscore are ignored when legend() is called with no argument.
 ```
 
-![image-20240302102438397](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102438397.png)
+![image-20240302102438397](assets/image-20240302102438397.png)
 
 Уже зрительно мы видим, что наш алгоритм отработал плохо, — результаты сильно отличаются от оригинала. Однако какие-то общие паттерны все же проглядываются. Возможно, стоит использовать другой метод понижения размерности. Посмотрим, чем может помочь Linear Discriminant Analysis (LDA).
 
@@ -420,7 +420,7 @@ plt.grid(True)
 plt.show()
 ```
 
-![image-20240302102519364](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102519364.png)
+![image-20240302102519364](assets/image-20240302102519364.png)
 
 Уже лучше. Мы видим, что есть ряд классов, которые очень сильно отличаются друг от друга при понижении размерности. После LDA наши алгоритмы классификации сработали бы гораздо лучше.
 
@@ -467,7 +467,7 @@ plt.grid(True)
 plt.show()
 ```
 
-![image-20240302102614175](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102614175.png)
+![image-20240302102614175](assets/image-20240302102614175.png)
 
 Здесь кластеры выделяются уже намного лучше. Но проблема в том, что в нашей палитре 8 цветов, и два цвета повторяются. Попробуем построить то же самое, но с использованием `colorbar`:
 
@@ -489,7 +489,7 @@ plt.axis('off')
 plt.show()
 ```
 
-![image-20240302102647976](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102647976.png)
+![image-20240302102647976](assets/image-20240302102647976.png)
 
 Получившаяся ситуация очень похожа на реальную, которая наблюдается в данных. И это мы использовали всего лишь 10% от наших данных. Попробуйте самостоятельно выделить факты, которые можно понять о датасете и о написании цифр в целом, используя эту визуализацию.
 
@@ -539,7 +539,7 @@ plt.axis('off')
 plt.show()
 ```
 
-![image-20240302102730481](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302102730481.png)
+![image-20240302102730481](assets/image-20240302102730481.png)
 
 # Применение рассмотренного подхода на примере
 
@@ -631,7 +631,7 @@ plt.grid(True)
 plt.show()
 ```
 
-![image-20240302112824940](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302112824940.png)
+![image-20240302112824940](assets/image-20240302112824940.png)
 
 Мы видим, что алгоритм сработал не очень хорошо. Попробуем другие доступные алгоритмы.
 
@@ -669,7 +669,7 @@ plt.grid(True)
 plt.show()
 ```
 
-![image-20240302112909068](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302112909068.png)
+![image-20240302112909068](assets/image-20240302112909068.png)
 
 Мы видим, что алгоритм t-SNE сработал лучше, чем PCA. Здесь кластеры заметно разделены. Тут же можно сделать вывод: хорошие яблоки — это такие яблоки, которые сильно отходят от точки (0, 0) по обоим параметрам (разнонаправленно). Те яблоки, которые сильно отличаются только по оси x — плохие.
 
@@ -684,7 +684,7 @@ plt.axis('off')
 plt.show()
 ```
 
-![image-20240302112950222](/home/andrei/study/mipt_semester4/visualization/week5/assets/image-20240302112950222.png)
+![image-20240302112950222](assets/image-20240302112950222.png)
 
 А этот алгоритм отработал хуже — точки находятся очень близко друг к другу.
 

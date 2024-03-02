@@ -10,7 +10,7 @@
 
 Если визуализировать аномалии на временном ряду, то можно выделить следующие виды аномалий:
 
-![image-20240302091452703](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302091452703.png)
+![image-20240302091452703](assets/image-20240302091452703.png)
 
 Ранее мы говорили о **выбросах** в данных. Если сравнивать выбросы и аномалии, то стоит отметить, что выбросы — это частный случай аномалий. Такой пример выброса продемонстрирован выше на третьей картинке. В то же время какой-то фрагмент данных может не отличаться статистически значимо от других данных, то есть быть очевидной аномалией (первая и вторая картинки).
 
@@ -95,7 +95,7 @@ anomalies_indices = np.where(predictions == -1)[0]
 print("Detected anomalies:", anomalies_indices)
 ```
 
-![image-20240302091943206](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302090933621.png)
+![image-20240302091943206](assets/image-20240302090933621.png)
 
 Мы создали массив с десятью выбросами, а алгоритм обнаружил 16. Так произошло, потому что шесть точек находятся снизу и слева от остального разброса, что достаточно удаленно от других точек. Поэтому алгоритм работает с достаточно хорошим качеством.
 
@@ -136,7 +136,7 @@ print("Detected anomalies:", anomalies_indices)
 
 ```
 
-![image-20240302093230712](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093230712.png)
+![image-20240302093230712](assets/image-20240302093230712.png)
 
 В нашем случае алгоритм распознал 8 из 10 точек, являющихся аномалиями. При этом нет ни одного False Positive срабатывания.
 
@@ -173,7 +173,7 @@ print("Detected anomalies:", anomalies_indices)
 
 ```
 
-![image-20240302093341771](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093341771.png)
+![image-20240302093341771](assets/image-20240302093341771.png)
 
 Как мы видим, алгоритм сработал настолько плохо, что распознал выбросы в точках прямо в центре распределения. Именно для обнаружения подобных случаев мы и используем scatter plot.
 
@@ -241,15 +241,15 @@ print("Detected anomalies:", anomalies_indices)
   
   ```
 
-  ![image-20240302093611275](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093611275.png)
+  ![image-20240302093611275](assets/image-20240302093611275.png)
 
-![image-20240302093635260](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093635260.png)
+![image-20240302093635260](assets/image-20240302093635260.png)
 
-![image-20240302093722594](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093722594.png)
+![image-20240302093722594](assets/image-20240302093722594.png)
 
-![image-20240302093810523](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093810523.png)
+![image-20240302093810523](assets/image-20240302093810523.png)
 
-![image-20240302093842994](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302093842994.png)
+![image-20240302093842994](assets/image-20240302093842994.png)
 
 В нашем случае все алгоритмы сработали неплохо. Однако простейший KNN показал более точные результаты. Но при решении других задач ситуация может быть совершенно другой.
 
@@ -303,9 +303,9 @@ plt.show()
 
 ```
 
-![image-20240302094038955](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302094038955.png)
+![image-20240302094038955](assets/image-20240302094038955.png)
 
-![image-20240302094056109](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302094056109.png)
+![image-20240302094056109](assets/image-20240302094056109.png)
 
 ![image-20240302094147341](/home/andrei/.config/Typora/typora-user-images/image-20240302094147341.png)
 
@@ -357,7 +357,7 @@ plt.show()
 
 ```
 
-![image-20240302100451328](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302100451328.png)
+![image-20240302100451328](assets/image-20240302100451328.png)
 
 Алгоритм делит наши данные не на два класса (нормальные данные и выбросы), а на большее количество. Черным цветом помечены точки, которые алгоритм однозначно идентифицирует как выбросы. Красные и зеленоватые точки — те, в работе которых алгоритм сомневается.
 
@@ -399,7 +399,7 @@ plt.show()
 
 ```
 
-![image-20240302100653362](/home/andrei/study/mipt_semester4/visualization/week4/assets/image-20240302100653362.png)
+![image-20240302100653362](assets/image-20240302100653362.png)
 
 И снова использование визуализации позволяет сделать однозначный вывод о том, насколько хорошо работает алгоритм. В этом случае алгоритм показал себя отлично — его можно использовать в решении нашей задачи.
 
