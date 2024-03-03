@@ -166,7 +166,7 @@ train.hist(figsize=(25, 4), layout=(2, 5), bins=30)
 train.sample(3)
 ```
 
-| car_id  | model      | car_type           | fuel_type | car_rating | year_to_start | riders | year_to_work | target_reg | target_class |                 |
+|| car_id  | model      | car_type           | fuel_type | car_rating | year_to_start | riders | year_to_work | target_reg | target_class |
 | ------- | ---------- | ------------------ | --------- | ---------- | ------------- | ------ | ------------ | ---------- | ------------ | --------------- |
 | **626** | I20900258y | Smart ForTwo       | economy   | petrol     | 3.80          | 2014   | 61049        | 2019       | 28.12        | engine_overheat |
 | **163** | q25090977a | Skoda Rapid        | economy   | petrol     | 3.02          | 2017   | 130192       | 2014       | 47.99        | engine_ignition |
@@ -193,7 +193,7 @@ rides_info.sample(3)
 (739500, 14)
 ```
 
-| user_id    | car_id     | ride_id    | ride_date | rating     | ride_duration | ride_cost | speed_avg | speed_max | stop_times | distance | refueling  | user_ride_quality | deviation_normal |         |
+|| user_id    | car_id     | ride_id    | ride_date | rating     | ride_duration | ride_cost | speed_avg | speed_max | stop_times | distance | refueling  | user_ride_quality | deviation_normal |
 | ---------- | ---------- | ---------- | --------- | ---------- | ------------- | --------- | --------- | --------- | ---------- | -------- | ---------- | ----------------- | ---------------- | ------- |
 | **699545** | G41442087L | x-2014093y | p1L       | 2020-02-04 | 2.09          | 24        | 212       | 36        | 70.828592  | 0        | 507.728335 | 0                 | 2.889705         | 0.001   |
 | **524461** | u19529036K | k88534152q | Q1h       | 2020-01-14 | 6.31          | 21        | 245       | 42        | 76.264270  | 1        | 933.391339 | 0                 | -4.357720        | 22.217  |
@@ -1913,3 +1913,595 @@ sns.jointplot(
 
 # **Продвинутая визуализация**
 
+## Важность фичей
+
+![image-20240303213856977](assets/image-20240303213856977.png)
+
+Даже после того, как мы обучили модель, визуализация помогает:
+
+- Понять, что мешает модели или чего ей не хватает, чтобы не допускать ошибки.
+- Сделать выводы, как можно улучшить точность в последующих экспериментах.
+- Визуализировать ошибки.
+- Отсеять лишние признаки.
+- Найти идеи для новых признаков
+
+```python
+!pip install catboost sklearn shap seaborn -q
+import pandas as pd
+import numpy as np
+
+import seaborn as sns; sns.set_theme()
+import matplotlib.pyplot as plt
+path = "../data/quickstart_train.csv"
+train = pd.read_csv(path)
+
+# Добавим пару рандомных признаков для последующего анализа
+train['random_feature_1'] = np.random.random(size = train.shape[0])
+train['random_feature_2'] = np.random.normal(size = train.shape[0])
+train['random_feature_3'] = np.random.randint(100, size = train.shape[0])
+
+train.hist(figsize=(25, 7.5), layout=(-1, 5))
+train.sample(3)
+train (2337, 20)
+```
+
+|          | car_id     | model           | car_type | fuel_type | car_rating | year_to_start | riders | year_to_work | target_reg | target_class    | mean_rating | distance_sum | rating_min | speed_max  | user_ride_quality_median | deviation_normal_count | user_uniq | random_feature_1 | random_feature_2 | random_feature_3 |
+| -------- | ---------- | --------------- | -------- | --------- | ---------- | ------------- | ------ | ------------ | ---------- | --------------- | ----------- | ------------ | ---------- | ---------- | ------------------------ | ---------------------- | --------- | ---------------- | ---------------- | ---------------- |
+| **541**  | X-1621523j | Kia Sportage    | standart | petrol    | 4.44       | 2012          | 28954  | 2017         | 61.60      | another_bug     | 4.550460    | 9.110524e+06 | 0.10       | 200.000000 | -0.747207                | 174                    | 171       | 0.781128         | 1.817386         | 92               |
+| **1654** | r-9955746M | Skoda Rapid     | economy  | petrol    | 5.28       | 2017          | 125880 | 2015         | 30.54      | break_bug       | 5.318276    | 1.033429e+07 | 0.61       | 112.808375 | -8.705216                | 174                    | 174       | 0.911726         | -1.664837        | 57               |
+| **1082** | t-6744951h | Renault Sandero | standart | petrol    | 4.24       | 2014          | 64462  | 2018         | 50.75      | engine_overheat | 4.209080    | 6.612902e+06 | 0.10       | 189.993034 | -11.026255               | 174                    | 174       | 0.312645         | 1.675480         | 75               |
+
+![image-20240303215306043](assets/image-20240303215306043.png)
+
+```python
+from sklearn.model_selection import train_test_split
+
+drop_cols = ['user_id', 'car_id', 'ride_id', 'ride_date']
+cat_cols = ['car_type', 'fuel_type', 'model']
+
+y = train['target_class']
+X = train.drop(drop_cols + ['target_reg', 'target_class'], axis=1, errors = 'ignore')
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+```
+
+Классификация общих методов
+
+```python
+from catboost import CatBoostClassifier, CatBoostRegressor, Pool
+
+clf = CatBoostClassifier(random_seed=9,
+                        thread_count=-1,
+                        use_best_model=True,
+                        cat_features=cat_cols,
+                        colsample_bylevel =  0.1,
+                        subsample = 0.95,
+                        bootstrap_type='Bernoulli')
+
+clf.fit(X_train, y_train,
+        eval_set=(X_test, y_test),
+        verbose=250,
+        plot=False,
+        early_stopping_rounds=100)
+
+print(clf.get_best_score())
+Learning rate set to 0.109335
+0:	learn: 2.0415376	test: 2.0431216	best: 2.0431216 (0)	total: 50ms	remaining: 49.9s
+250:	learn: 0.3453984	test: 0.5558577	best: 0.5558577 (250)	total: 573ms	remaining: 1.71s
+500:	learn: 0.2205506	test: 0.5431616	best: 0.5419926 (445)	total: 1.11s	remaining: 1.1s
+Stopped by overfitting detector  (100 iterations wait)
+
+bestTest = 0.541992623
+bestIteration = 445
+
+Shrink model to first 446 iterations.
+{'learn': {'MultiClass': 0.21046033148255797}, 'validation': {'MultiClass': 0.5419926230043365}}
+```
+
+### Визуализируем важность фичей для CatBoost:
+
+```python
+# Посмотрим важность признаков
+fi = clf.get_feature_importance(prettified=True)
+fi[:20] # .style.background_gradient(cmap='viridis', subset=pd.IndexSlice[0:10, 'Importances'])
+```
+
+|        | FeatureId                | Importances |
+| ------ | ------------------------ | ----------- |
+| **0**  | speed_max                | 36.299202   |
+| **1**  | mean_rating              | 24.837551   |
+| **2**  | rating_min               | 11.452319   |
+| **3**  | user_uniq                | 4.369532    |
+| **4**  | car_type                 | 3.256868    |
+| **5**  | model                    | 2.628742    |
+| **6**  | user_ride_quality_median | 2.619944    |
+| **7**  | car_rating               | 2.160998    |
+| **8**  | distance_sum             | 2.000882    |
+| **9**  | random_feature_3         | 1.873380    |
+| **10** | random_feature_2         | 1.830960    |
+| **11** | year_to_work             | 1.745910    |
+| **12** | random_feature_1         | 1.684738    |
+| **13** | year_to_start            | 1.621041    |
+| **14** | riders                   | 1.425013    |
+| **15** | fuel_type                | 0.192920    |
+| **16** | deviation_normal_count   | 0.000000    |
+
+
+
+Не стоит сильно доверять этому рейтингу, т. к. для сильно скоррелированных признаков Importance делится пополам, и они оба могут улететь вниз по важности.
+
+```python
+feature_importance = clf.feature_importances_
+sorted_idx = np.argsort(feature_importance)
+fig = plt.figure(figsize=(10, 5))
+plt.barh(range(len(sorted_idx)), feature_importance[sorted_idx], align='center')
+plt.yticks(range(len(sorted_idx)), np.array(X_test.columns)[sorted_idx])
+plt.title('Feature Importance');
+```
+
+![image-20240303215518975](assets/image-20240303215518975.png)
+
+Теперь построим график важности признаков при кросс-валидации с помощью Seaborn:
+
+```python
+from sklearn.model_selection import KFold
+
+n_splits = 5
+targets = ['target_class']
+clfs = []
+scores = []
+kf = KFold(n_splits=n_splits, shuffle=True, random_state=7575)
+for train_index, test_index in kf.split(X):
+
+    X_train, X_test = X.iloc[train_index], X.iloc[test_index] 
+    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+
+    train_dataset = Pool(data=X_train, label=y_train, cat_features=cat_cols)
+    eval_dataset = Pool(data=X_test, label=y_test, cat_features=cat_cols)
+
+    clf = CatBoostClassifier(random_seed=9,
+                        thread_count=-1,
+                        use_best_model=True,
+                        cat_features=cat_cols,
+                        colsample_bylevel =  0.1,
+                        subsample = 0.95,
+                        bootstrap_type='Bernoulli',)
+
+    clfs.append(clf)
+
+    clf.fit(train_dataset, eval_set=eval_dataset,
+            verbose = False, use_best_model = True, plot = False)
+
+    scores.append(np.mean([v for k, v in clf.best_score_['validation'].items()], dtype = 'float16'))
+    
+print('mean recall score --------->', np.mean(scores, dtype = 'float16'), np.std(scores, dtype = 'float16'))
+mean recall score ---------> 0.506 0.02983
+```
+
+Посмотрим на функцию для отображения разброса важности признаков по фолдам:
+
+```python
+from src.utils import plot_importance
+# Строим важность по всем фолдам сразу
+df_feats_imp = plot_importance(X, clfs, height = 0.20, top_n = 14)
+```
+
+Всего получилось 17 признаков. Среднее по пяти моделям. На графике отображено топ-14 признаков:
+
+![image-20240303215611526](assets/image-20240303215611526.png)
+
+Теперь разберем графики важности более точных методов.
+
+### Permutation Importance
+
+```python
+from sklearn.inspection import permutation_importance
+
+perm_importance = permutation_importance(clf, X_test, y_test, n_repeats=10, random_state=1066)
+sorted_idx = perm_importance.importances_mean.argsort()
+fig = plt.figure(figsize=(12, 5))
+plt.barh(range(len(sorted_idx)), perm_importance.importances_mean[sorted_idx], align='center')
+plt.yticks(range(len(sorted_idx)), np.array(X_test.columns)[sorted_idx])
+plt.title('Permutation Importance');
+```
+
+![image-20240303215856554](assets/image-20240303215856554.png)
+
+### SHAP
+
+![image-20240303215946481](assets/image-20240303215946481.png)
+
+В библиотеке SHAP для оценки важности признаков рассчитываются значения Шепли (библиотека названа в честь американского математика). Библиотека обладает богатым функционалом визуализации, который помогает легко и просто объяснить модель.
+
+Для оценки важности фичи происходит оценка предсказаний модели с и без этой фичи:
+
+```python
+# Библиотека SHAP бывает капризна в установке и может конфликтовать с другими пакетами
+# Иногда помогает такой набор команд
+#!pip uninstall opencv-python -y -q
+#!pip install opencv-python shap -q
+import shap
+shap.initjs()
+```
+
+```python
+# Посмотрим влияние фичей на все классы
+explainer = shap.TreeExplainer(clf)
+
+val_dataset = Pool(data=X_test, label=y_test, cat_features=cat_cols)
+shap_values = explainer.shap_values(val_dataset)
+shap.summary_plot(shap_values, X_test, max_display = 25, plot_size = (15, 5))
+```
+
+![image-20240303220120427](assets/image-20240303220120427.png)
+
+```python
+# Или на каждый класс по отдельности
+for i in range(len(np.unique(y.values))):
+    print(f'Class {i}')
+    shap.summary_plot(shap_values[i], X_test, color_bar=True, plot_size = (15, 5))
+    if i == 1:
+        break
+# shap.summary_plot(shap_values[1], X_test, color_bar=False)
+Class 0
+No data for colormapping provided via 'c'. Parameters 'vmin', 'vmax' will be ignored
+```
+
+![image-20240303220200476](assets/image-20240303220200476.png)
+
+```markup
+Class 1
+```
+
+![image-20240303220235734](assets/image-20240303220235734.png)
+
+**Как читать график:**
+
+- Значения слева от центральной вертикальной линии — это negative класс (0), справа — positive (1).
+- Чем толще линия на графике, тем больше точек наблюдения.
+- Чем краснее точки на графике, тем выше значения фичи в ней.
+
+### dependence_plot
+
+Мы можем посмотреть влияние отдельной фичи на конкретный класс с помощью `dependence_plot`:
+
+```python
+shap.dependence_plot("speed_max", shap_values[1], X_test)
+```
+
+![image-20240303220347184](assets/image-20240303220347184.png)
+
+Одна из самых крутых фишек библиотеки SHAP — возможность посмотреть, как модель определяет, к какому классу относится конкретная машина, и какие признаки на это влияют. Посмотрим на примере первой машины из тестовой выборки:
+
+```python
+X_test.iloc[0]
+model                       Renault Sandero
+car_type                           standart
+fuel_type                            petrol
+car_rating                              4.7
+year_to_start                          2012
+riders                                26428
+year_to_work                           2017
+mean_rating                        4.181149
+distance_sum                13983174.664416
+rating_min                              0.1
+speed_max                        203.462289
+user_ride_quality_median         -14.260456
+deviation_normal_count                  174
+user_uniq                               171
+random_feature_1                   0.122374
+random_feature_2                  -0.571221
+random_feature_3                         95
+Name: 4, dtype: object
+# Поломка engine_fuel — это 4 класс
+y_test.iloc[0]
+'engine_fuel'
+```
+
+### force_plot
+
+В этом помогут `force_plot` и просто «пушечный» вид графика `waterfall_plot`.
+
+Можно посмотреть на вклад каждого признака в то, что модель не отнесла поломку машины к классу 0, а отнесла к классу 4:
+
+```python
+shap.force_plot(explainer.expected_value[0], shap_values[0][0], feature_names=X_test.columns)
+Visualization omitted, Javascript library not loaded!
+Have you run `initjs()` in this notebook? If this notebook was from another user you must also trust this notebook (File -> Trust notebook). If you are viewing this notebook on github the Javascript has been stripped for security. If you are using JupyterLab this error is because a JupyterLab extension has not yet been written.
+shap.force_plot(explainer.expected_value[0], shap_values[4][0], feature_names=X_test.columns)
+Visualization omitted, Javascript library not loaded!
+Have you run `initjs()` in this notebook? If this notebook was from another user you must also trust this notebook (File -> Trust notebook). If you are viewing this notebook on github the Javascript has been stripped for security. If you are using JupyterLab this error is because a JupyterLab extension has not yet been written.
+```
+
+### waterfall_plot
+
+```python
+# waterfall_plot показывает численное влияние каждого признака
+s_values = explainer(X_test)
+shap.waterfall_plot(s_values[0][:, 0])
+shap.waterfall_plot(s_values[0][:, 4])
+```
+
+![image-20240303220509732](assets/image-20240303220509732.png)
+
+![image-20240303220626464](assets/image-20240303220626464.png)
+
+В библиотеке [SHAP](https://shap.readthedocs.io/en/latest/index.html) большее количество других графиков. Мы показали самые интересные и часто используемые.
+
+### Classification Report
+
+`classification_report` — одна функция и сразу все метрики.
+
+```python
+from sklearn.metrics import classification_report
+
+y_pred = clf.predict(X_test)
+print(classification_report(y_true = y_test,
+                            y_pred = y_pred,
+                            target_names=clf.classes_))
+```
+
+
+
+```markup
+                 precision    recall  f1-score   support
+
+    another_bug       0.91      0.81      0.86        59
+      break_bug       1.00      1.00      1.00        56
+    electro_bug       1.00      1.00      1.00        56
+   engine_check       0.68      0.87      0.76        45
+    engine_fuel       0.68      0.72      0.70        50
+engine_ignition       0.54      0.46      0.50        61
+engine_overheat       0.57      0.63      0.60        62
+     gear_stick       0.93      0.90      0.91        48
+    wheel_shake       0.80      0.67      0.73        30
+
+       accuracy                           0.78       467
+      macro avg       0.79      0.78      0.78       467
+   weighted avg       0.79      0.78      0.78       467
+rep = pd.DataFrame(classification_report(y_true = y_test,
+                            y_pred = y_pred,
+                            target_names=clf.classes_,
+                            output_dict=True)).T
+rep['support'] = rep.support.apply(int)
+rep.style.background_gradient(cmap='viridis', subset=pd.IndexSlice['another_bug':'wheel_shake', :'f1-score'])
+```
+
+|                     | precision | recall   | f1-score | support |
+| ------------------- | --------- | -------- | -------- | ------- |
+| **another_bug**     | 0.905660  | 0.813559 | 0.857143 | 59      |
+| **break_bug**       | 1.000000  | 1.000000 | 1.000000 | 56      |
+| **electro_bug**     | 1.000000  | 1.000000 | 1.000000 | 56      |
+| **engine_check**    | 0.684211  | 0.866667 | 0.764706 | 45      |
+| **engine_fuel**     | 0.679245  | 0.720000 | 0.699029 | 50      |
+| **engine_ignition** | 0.538462  | 0.459016 | 0.495575 | 61      |
+| **engine_overheat** | 0.565217  | 0.629032 | 0.595420 | 62      |
+| **gear_stick**      | 0.934783  | 0.895833 | 0.914894 | 48      |
+| **wheel_shake**     | 0.800000  | 0.666667 | 0.727273 | 30      |
+| **accuracy**        | 0.781585  | 0.781585 | 0.781585 | 0       |
+| **macro avg**       | 0.789731  | 0.783419 | 0.783782 | 467     |
+| **weighted avg**    | 0.785749  | 0.781585 | 0.781186 | 467     |
+
+
+
+### Матрица смежности
+
+`confusion_matrix` — матрица смежности. С ее помощью посмотрим, в каких классах модель больше всего ошибается:
+
+```python
+# import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+ConfusionMatrixDisplay.from_estimator(clf, X_test, y_test, xticks_rotation = 45)
+# Есть модель не под рукой
+# ConfusionMatrixDisplay.from_predictions(y_test, y_pred, xticks_rotation = 45)
+# plt.show()
+<sklearn.metrics._plot.confusion_matrix.ConfusionMatrixDisplay at 0x7f5a82910ee0>
+```
+
+![image-20240303220750329](assets/image-20240303220750329.png)
+
+```python
+plt.rcParams['figure.figsize']=(7, 7)
+cf = confusion_matrix(y_test, y_pred)
+sns.heatmap(cf, annot=True)
+<AxesSubplot: >
+```
+
+![image-20240303220837062](assets/image-20240303220837062.png)
+
+```python
+from src.utils import plot_confusion, plot_importance
+# Тот же способ выше, только чуть причесанный
+plot_confusion(Y_test = y_test, Y_test_pred = y_pred, labels = clf.classes_ )
+```
+
+![image-20240303220911456](assets/image-20240303220911456.png)
+
+**Как читать график:**
+
+- Значения диагонали сверху вниз слева направо — это число верно предсказанных значений.
+- Чем темнее квадрат, тем больше верных ответов.
+- Можно сделать вывод, что модель больше всего путается между классами: 1 - 2, 1 - 5, 1- 6, 2 - 3, 5 - 6.
+- Видно, что первый и пятый классы отделяются хуже.
+
+```python
+# !sudo apt update -y && sudo apt install graphviz -y -q
+```
+
+Отрисуем дерево модели:
+
+```python
+# Как минимум помогает понять, что такое дерево решений
+clf.plot_tree(
+    tree_idx=4,
+    pool=val_dataset
+)
+```
+
+​	![image-20240303221001129](assets/image-20240303221001129.png)
+
+Посмотрим, как топовые фичи влияют на прогноз модели (partial plots):
+
+```python
+from sklearn.inspection import PartialDependenceDisplay
+
+plt.rcParams['figure.figsize']=(24, 8)
+features = X.drop(cat_cols, axis=1).columns
+
+features = ['mean_rating', 'distance_sum', 'speed_max', 'user_ride_quality_median',
+            'deviation_normal_count', 'random_feature_1', 'random_feature_2', 'random_feature_3']
+
+PartialDependenceDisplay.from_estimator(clf, X_test,
+                                        features = features,
+                                        target='engine_overheat',
+                                        n_cols=4,
+                                        n_jobs=-1,
+                                        random_state=42,)
+<sklearn.inspection._plot.partial_dependence.PartialDependenceDisplay at 0x7f5a81ee56a0>
+```
+
+![image-20240303221035583](assets/image-20240303221035583.png)
+
+## Регрессия
+
+```python
+y = train['target_reg']
+X = train.drop(drop_cols + ['target_reg','target_class'], axis=1, errors = 'ignore')
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+regr = CatBoostRegressor(random_seed=9,
+                        thread_count=-1,
+                        use_best_model=True,
+                        cat_features=cat_cols,
+                         )
+
+regr.fit( X_train, y_train, 
+        eval_set=(X_test, y_test),
+        verbose=50, plot=False, early_stopping_rounds=200)
+
+print(regr.get_best_score())
+Learning rate set to 0.056174
+0:	learn: 17.0988040	test: 17.8186403	best: 17.8186403 (0)	total: 1.67ms	remaining: 1.67s
+50:	learn: 11.1911807	test: 12.3024640	best: 12.3024640 (50)	total: 45.6ms	remaining: 848ms
+100:	learn: 10.4305529	test: 12.0900226	best: 12.0900226 (100)	total: 86.3ms	remaining: 768ms
+150:	learn: 9.8208911	test: 12.1136702	best: 12.0833986 (118)	total: 127ms	remaining: 712ms
+200:	learn: 9.1858163	test: 12.1503019	best: 12.0833986 (118)	total: 171ms	remaining: 680ms
+250:	learn: 8.6553058	test: 12.1903675	best: 12.0833986 (118)	total: 215ms	remaining: 641ms
+300:	learn: 8.1939175	test: 12.2340568	best: 12.0833986 (118)	total: 256ms	remaining: 594ms
+Stopped by overfitting detector  (200 iterations wait)
+
+bestTest = 12.08339865
+bestIteration = 118
+
+Shrink model to first 119 iterations.
+{'learn': {'RMSE': 8.035164599298184}, 'validation': {'RMSE': 12.083398649663845}}
+```
+
+## **Остатки**
+
+Когда делаем предсказание для задачи классификации, то, помимо метрики, также визуально оцениваем качество по матрице ошибок:
+
+```python
+cbr_prediction = regr.predict(X_test)
+
+df_pred = pd.DataFrame(cbr_prediction, columns = ["Predicted_values"])
+df_pred["Actual_values"] =  y_test.values
+
+g = sns.relplot(data = df_pred, aspect = 4, kind = 'line')
+# g.set(yscale="log")#.set(xscale="log")
+```
+
+![image-20240303221140787](assets/image-20240303221140787.png)
+
+```python
+df_pred['diff'] = df_pred["Actual_values"] - df_pred["Predicted_values"]
+sns.relplot(data = df_pred['diff'], aspect = 4, kind = 'line')
+# sns.displot(data = df_pred['diff'], aspect = 2, bins=60)
+<seaborn.axisgrid.FacetGrid at 0x7f5a5c7a3fa0>
+```
+
+![image-20240303221211750](assets/image-20240303221211750.png)
+
+```python
+df_pred['year_to_work'] = X_test["year_to_work"].values
+
+g = sns.relplot(data = df_pred,
+                x = 'Actual_values',
+                y = 'diff',
+                hue = 'year_to_work',
+                kind = 'scatter',
+                aspect = 4,)
+
+# # g.set(yscale="log")#.set(xscale="log")
+```
+
+![image-20240303221241452](assets/image-20240303221241452.png)
+
+```python
+df_pred['year_to_work'] = X_test["year_to_work"].values
+# sns.displot(data = df_pred['diff'], aspect = 4, hue = 'year_to_work')
+```
+
+Есть еще два полезных графика:
+
+- **Первый** — самый очевидный — просто отложить на двух осях фактические и предсказанные значения.
+- **Второй** — изменить координаты на True-Pred и True+Pred. По сути, тот же вариант, что и первый, но растянут по одной оси и сужен по второй.
+
+```python
+df_pred['car_type'] = X_test['car_type'].values
+df_pred['model'] = X_test['model'].values
+df_pred['size'] = abs(df_pred["diff"] // 1)
+
+g = sns.relplot(data = df_pred,
+                x = 'Predicted_values',
+                y = 'Actual_values',
+                hue='car_type',
+                size = 'size',
+                aspect = 4,
+                kind = 'scatter')
+
+# g.set(yscale="log")#.set(xscale="log")
+```
+
+![image-20240303221317606](assets/image-20240303221317606.png)
+
+- В идеале ответы должны быть по диагонали, но тут это не так.
+- Видно, что ответы в диапазоне больших значений предсказываются хуже. Возможно, с этим что-то можно сделать.
+- Можно перебрать другие категориальные фичи.
+
+## График (True - Pred) vs (True + Pred)
+
+```python
+df_pred['plus'] = df_pred["Actual_values"] + df_pred["Predicted_values"]
+df_pred['minus'] = df_pred["Actual_values"] - df_pred["Predicted_values"]
+
+g = sns.relplot(data = df_pred,
+                x = 'minus',
+                y = 'plus',
+                hue='model',
+                aspect = 4,
+                kind = 'scatter')
+
+# g.set(yscale="log")#.set(xscale="log")
+```
+
+![image-20240303221404339](assets/image-20240303221404339.png)
+
+Позволяет посмотреть на график под другим углом. Иногда это бывает полезно — так можно найти выбросы.
+
+Проведем визуальный анализ ошибок:
+
+![image-20240303221529330](assets/image-20240303221529330.png)
+
+## Выводы
+
+- Метрики это хорошо, но полезно анализировать ошибки. Иначе мы стреляем вслепую.
+- В зависимости от типа данных всегда можно придумать свой вид интерпретации.
+- Анализировать легко, когда есть интерпретируемые данные. В остальных случаях можно опустить.
+- Интерпретация → Идея → Действие.
+
+
+
+## Материалы для дополнительного изучения
+
+- [Explaining Machine Learning Models: A Non-Technical Guide to Interpreting SHAP Analyses](https://www.aidancooper.co.uk/a-non-technical-guide-to-interpreting-shap-analyses/)
+- [mlxnet для визуализации](https://rasbt.github.io/mlxtend/user_guide/plotting/plot_confusion_matrix/)
