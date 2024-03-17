@@ -15,7 +15,8 @@
 
 `Featuretools` создана для данных в виде SQL-базы. **Данные в виде SQL-базы** — несколько табличек, которые соединяются по id. У нас есть такая табличка:
 
-![image-20240315161746537](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315161746537-1710509156667-4-1710509453148-14.png)
+![image-20240315161746537](assets/image-20240315161746537-1710509156667-4-1710509453148-14-1710696825358-1.png)
+\/home\/andrei\/study\/mipt_semester4\/competitive_ds\/week3\/assets\/image-20240315161746537-1710509156667-4-1710509453148-14-1710696825358-1.png
 
 Попробуем загрузить таблицы в `featuretools` и вытащить признаки, которые мы делали вручную в `QuickStart`:
 
@@ -577,7 +578,7 @@ g.add_edge('П','С')
 nx.draw(g, with_labels=True)
 ```
 
-![image-20240315162348944](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315162348944-1710509453129-10.png)
+![image-20240315162348944](assets/image-20240315162348944-1710509453129-10-1710696825359-2.png)
 
 Вершины — это точки данных (Петя и Света), а связь между ними задана ребром.
 
@@ -591,7 +592,7 @@ g.add_edges_from([('В','П'),('В','С'),('Л','П'),('Л','С')])
 nx.draw(g, with_labels=True)
 ```
 
-![image-20240315162426260](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315162426260-1710509453129-11.png)
+![image-20240315162426260](assets/image-20240315162426260-1710509453129-11-1710696825359-3.png)
 
 Рекомендую использовать этот способ — так и удобнее, и быстрее для больших графов.
 
@@ -672,7 +673,7 @@ G = json_graph.node_link_graph(interactions)
 nx.draw_networkx(G)
 ```
 
-![image-20240315162452897](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315162452897-1710509453129-12.png)
+![image-20240315162452897](assets/image-20240315162452897-1710509453129-12-1710696825359-4.png)
 
 ```python
 import matplotlib.pyplot as plt
@@ -699,7 +700,7 @@ plt.axis('off')
 plt.show()
 ```
 
-![image-20240315162522652](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315162522652-1710509453130-13.png)
+![image-20240315162522652](assets/image-20240315162522652-1710509453130-13-1710696825359-5.png)
 
 ## Degree centrality
 
@@ -728,13 +729,13 @@ pos=pos,
 )
 ```
 
-![image-20240315162637362](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315162637362.png)
+![image-20240315162637362](assets/image-20240315162637362-1710696825359-6.png)
 
 ## Betweenness centrality
 
 **Betweenness centrality (степень посредничества)** позволяет ранжировать вершины в графе, то есть оценить их важность с точки зрения количества проходящих через них путей.
 
-![](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/asset-v1_SkillFactory+MFTIDSLIGHT+2022_DEC+type@asset+block@MFTIDSLIGHT_CDS_4_1_007-1710509453150-15.gif)
+![](assets/asset-v1_SkillFactory+MFTIDSLIGHT+2022_DEC+type@asset+block@MFTIDSLIGHT_CDS_4_1_007-1710509453150-15-1710696825359-7.gif)
 
 На иллюстрации между каждой парой вершин в графе курсирует по одной частице; частицы двигаются только по кратчайшим путям. Каждый раз, когда через вершину графа проходит какая-либо частица, счетчик вершины увеличивается. Чем больше значение счетчика, тем больше радиус вершины, который характеризует «центральность» вершины.
 
@@ -906,7 +907,7 @@ timeseries.id.nunique()
 
 `Tsfresh` автоматически извлекает более 100 паттернов из временного ряда. Эти характеристики описывают основные факторы, такие как количество пиков и средние или максимальные значения, а также более сложные факторы, такие как симметричное распределение.
 
-![image-20240315162903735](/home/andrei/study/mipt_semester4/competitive_ds/week3/assets/image-20240315162903735.png)
+![image-20240315162903735](assets/image-20240315162903735-1710696825359-8.png)
 
 Генерация признаков происходит на основе словаря, который передается в параметр `default_fc_parameters`. Какой словарь туда передадим — столько признаков по каждому ряду будет сгенерировано. Словарь состоит из т. н. «калькуляторов фичей», но в параметр передается не сам словарь, а объект, который возвращает словарь при вызове. Также стоит отметить, что некоторые вычислители имеют дополнительные атрибуты — на выходе может получиться более 100 признаков.
 
@@ -1089,3 +1090,399 @@ pipeline.fit(X, y)
 - [Официальная документация Karate Club](https://colab.research.google.com/corgiredirector?site=https%3A%2F%2Fkarateclub.readthedocs.io%2Fen%2Flatest%2Findex.html)
 
 # **Автоматическая оптимизация ML-моделей**
+
+## Базовые концепции Optuna
+
+В предыдущих уроках мы рассматривали поиск оптимальных гиперпараметров классическими способами: полный перебор по сетке (`GridSearchCV`) и случайный перебор значений из заданного распределения (`Random Search`). Хотя `Random Search` значительно ускоряет процесс поиска, мы можем пропустить набор гиперпараметров, при котором модель показывает лучшее качество.
+
+В голову может прийти идея: «А что если вначале немного поугадывать, как в `Random Search`, а затем чаще проверять в тех местах, рядом с которыми модель показала лучшую точность?». Такой метод называется **байесовский поиск гиперпараметров модели**.
+
+Самые популярные библиотеки, в которых реализован этот метод, — `HyperOpt` и `Optuna`. В нашей практике `HyperOpt` часто работает нестабильно, поэтому в этом занятии сосредоточимся на `Optuna`.
+
+Почему не `GridSearch:`
+
+- Легковесность и универсальность — можно подбирать оптимальные параметры под любые функции и метрики.
+- SOTA-алгоритмы, адаптированные для поиска гиперпараметров.
+- Параллелизация и различные методы прунинга.
+- Встроенная визуализация.
+- Интеграция со множеством популярных библиотек (бустинги, sklearn, PyTorch, W&B и др.)
+
+## Study и Trial
+
+Чтобы понять, как использовать фреймворк, разберем его по частям:
+
+```python
+!pip install optuna catboost -q
+
+import optuna
+
+import numpy as np
+import pandas as pd
+
+from catboost import CatBoostClassifier
+from sklearn.model_selection import KFold, train_test_split
+```
+
+В `Optuna` присутствуют две базовые сущности: `Study` и `Trial`.
+
+**`Study`** — оптимизация, базирующаяся на функции `Objective`. В функцию `Objective` нужно написать код подсчета метрики, которую возвращаем. `Objective` вызывается `Optuna` много раз для подбора лучших параметров.
+
+```python
+def objective(trial, ...):
+    # Сalculate score...
+    return score
+```
+
+**`Trial`** — одно выполнение функции `Objective`. В `trial`-объекте мы передаем параметры для «перебора», используя для каждого типа свой метод, например:
+
+```python
+# Метод `suggest_float` показывает, что перебираем `float` значения, от 0 и до 1.5 границы
+param = trial.suggest_float('param', 0, 1.5) 
+
+# Категориальное значение
+loss_function = trial.suggest_categorical('loss', ['Logloss', 'CrossEntropy'])
+
+# Целочисленное значение
+depth = trial.suggest_int('depth', 5, 8)
+
+# Равномерное распределение
+learning_rate = trial.suggest_uniform('learning_rate', 0.0, 1.0)
+```
+
+Запуск алгоритма перебора
+
+Инициализируем объект `study`, который начнет перебор и сохранит историю результатов. Если мы стараемся увеличить метрику, а не уменьшить ошибку, то используем `create_study(direction='maximize')`.
+
+```python
+study = optuna.create_study()
+study.optimize(objective, n_trials=10)
+```
+
+В `Optuna` реализовано несколько методов (`sampler`) подбора параметров (в том числе классические):
+
+- `GridSampler`;
+- `RandomSampler`;
+- `Tree-Structed Parzen Estimator` (`TPESampler` — самый популярный, дефолтный);
+- `BruteForceSampler`.
+
+Существует еще [четыре других метода](https://optuna.readthedocs.io/en/stable/reference/samplers/index.html#module-optuna.samplers). Также можно написать собственный сэмплер.
+
+## Пример работы Optuna
+
+Разберем небольшой пример и посмотрим, как работает `Optuna`.
+
+Допустим, у нас есть функция `y = (x+1)(x+5)(x-9)`, и мы хотим узнать`x`, при котором значение функции будет минимально. Создадим функцию `Objective` и передадим в аргументы объект `trial`, с помощью которого зададим интервал для `x` на `[-5, 5]`.
+
+![image-20240317202122607](assets/image-20240317202122607.png)
+
+```python
+# Ограничим логирование
+optuna.logging.set_verbosity(30)
+def objective(trial):
+    x = trial.suggest_float("x", -8, 10)
+    return (x + 1) * (x + 5) * (x - 9)
+
+
+# Создадим объект обучения и запустим на 10 итераций; т. к. мы ищем минимум, параметр direction оставляем дефолтным
+study = optuna.create_study()
+
+# Запуск поиска
+study.optimize(objective,
+               n_jobs=-1,
+               n_trials=250,
+               show_progress_bar=True)
+/opt/conda/lib/python3.9/site-packages/optuna/progress_bar.py:56: ExperimentalWarning: Progress bar is experimental (supported from v1.2.0). The interface can change in the future.
+  self._init_valid()
+0%|          | 0/250 [00:00<?, ?it/s]
+optuna.visualization.plot_slice(study)
+optuna.visualization.plot_optimization_history(study)
+# Выводим лучшие параметры
+study.best_params
+{'x': 5.1638150638073315}
+```
+
+Теперь видим результаты всех запусков. Минимум функции случился при `х = 5.16` — близко к реальному минимуму. Запустим `Optuna` на наших данных:
+
+```python
+# Загружаем датасет quickstart_train и отберем колонки
+path = "../data/quickstart_train.csv"
+train = pd.read_csv(path)
+
+cat_features = ["model", "car_type", "fuel_type"]  # Выделяем категориальные признаки
+targets = ["target_class", "target_reg"]
+features2drop = ["car_id"]  # Эти фичи будут удалены
+
+# Отбираем итоговый набор признаков для использования моделью
+filtered_features = [i for i in train.columns if (i not in targets and i not in features2drop)]
+num_features = [i for i in filtered_features if i not in cat_features]
+CatBoostClassifier()
+<catboost.core.CatBoostClassifier at 0x7f9711b495e0>
+```
+
+Объявим функцию обучения `Catboost` с возвращением предсказаний на валидации `KFold`:
+
+```python
+def fit_catboost(trial, train, val):
+    X_train, y_train = train
+    X_val, y_val = val
+
+    param = {
+        'iterations' : 400, # Можно не перебирать, есть Early-Stopping
+        "learning_rate": trial.suggest_float("learning_rate", 0.001, 0.01),
+        "l2_leaf_reg": trial.suggest_int("l2_leaf_reg", 2, 50),
+        "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.01, 0.8),
+        
+        "auto_class_weights": trial.suggest_categorical("auto_class_weights", ["SqrtBalanced", "Balanced", "None"]),
+        "depth": trial.suggest_int("depth", 3, 9),
+        
+        "boosting_type": trial.suggest_categorical("boosting_type", ["Ordered", "Plain"]),
+        "bootstrap_type": trial.suggest_categorical("bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]),
+        "used_ram_limit": "14gb",
+        "eval_metric": "Accuracy", # Тоже стоит заранее определиться
+    }
+
+    
+    if param["bootstrap_type"] == "Bayesian":
+        param["bagging_temperature"] = trial.suggest_float("bagging_temperature", 0, 20)
+        
+    elif param["bootstrap_type"] == "Bernoulli":
+        param["subsample"] = trial.suggest_float("subsample", 0.1, 1)
+        
+
+    clf = CatBoostClassifier(
+        **param,
+        thread_count=-1,
+        random_seed=42,
+        cat_features=cat_features,
+    )
+
+    clf.fit(
+        X_train,
+        y_train,
+        eval_set=(X_val, y_val),
+        verbose=0,
+        plot=False,
+        early_stopping_rounds=5,
+    )
+
+    y_pred = clf.predict(X_val)
+    return clf, y_pred
+```
+
+Напишем функцию `Оbjective`, в которую поместим валидацию `KFold`, чтобы подбирать лучшие гиперпараметры на всем датасете:
+
+```python
+from sklearn.metrics import accuracy_score
+
+def objective(trial, return_models=False):
+    n_splits = 3
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    X_train = train[filtered_features].drop(targets, axis=1, errors="ignore")
+    y_train = train["target_class"]
+
+    scores, models = [], []
+    
+    for train_idx, valid_idx in kf.split(X_train):
+        train_data = X_train.iloc[train_idx, :], y_train.iloc[train_idx]
+        valid_data = X_train.iloc[valid_idx, :], y_train.iloc[valid_idx]
+
+        # Подаем trials для перебора
+        model, y_pred = fit_catboost(trial, train_data, valid_data) # Определили выше
+        scores.append(accuracy_score(y_pred, valid_data[1]))
+        models.append(model)
+        break
+         
+
+    result = np.mean(scores)
+    
+    if return_models:
+        return result, models
+    else:
+        return result
+```
+
+
+
+### Советы по перебору параметров
+
+- Иметь понимание важности параметров.
+- Число `iterations` лучше взять с запасом и зафиксировать, при этом ограничив через `early_stopping_rounds.`
+- Подсмотреть или чувствовать диапазоны и шаг значений.
+- Исключить то, что перебирать не нужно (`random_seed` , `eval_metric`, `thread_count`).
+- Использовать информацию с прошлых попыток.
+
+### Запуск Optuna
+
+```python
+study = optuna.create_study(direction="maximize")
+study.optimize(objective,
+               n_trials=600,
+               n_jobs = -1,
+               show_progress_bar=True,)
+/opt/conda/lib/python3.9/site-packages/optuna/progress_bar.py:56: ExperimentalWarning:
+
+Progress bar is experimental (supported from v1.2.0). The interface can change in the future.
+0%|          | 0/600 [00:00<?, ?it/s]
+```
+
+Посмотрим на лучшие параметры:
+
+```python
+print("Best trial: score {}, params {}".format(study.best_trial.value, study.best_trial.params))
+Best trial: score 0.7984595635430038, params {'learning_rate': 0.00849806154878207, 'l2_leaf_reg': 3, 'colsample_bylevel': 0.45644824826460734, 'auto_class_weights': 'Balanced', 'depth': 5, 'boosting_type': 'Plain', 'bootstrap_type': 'Bernoulli', 'subsample': 0.7926751124314249}
+```
+
+Обучим итоговые модели уже на них:
+
+```python
+valid_scores, models = objective(
+    optuna.trial.FixedTrial(study.best_params),
+    return_models=True,
+)
+valid_scores, len(models)
+(0.7984595635430038, 1)
+```
+
+### Визуализация оптимизаций
+
+Чтобы посмотреть всю историю обучения, можно вывести ее в виде датафрейма:
+
+```python
+trials_df = study.trials_dataframe().sort_values('value', ascending=False)
+trials_df.head(3)
+```
+
+|         | number | value    | datetime_start             | datetime_complete          | duration               | params_auto_class_weights | params_bagging_temperature | params_boosting_type | params_bootstrap_type | params_colsample_bylevel | params_depth | params_l2_leaf_reg | params_learning_rate | params_subsample | state    |
+| ------- | ------ | -------- | -------------------------- | -------------------------- | ---------------------- | ------------------------- | -------------------------- | -------------------- | --------------------- | ------------------------ | ------------ | ------------------ | -------------------- | ---------------- | -------- |
+| **580** | 580    | 0.798460 | 2023-04-05 10:17:16.277412 | 2023-04-05 10:17:20.514965 | 0 days 00:00:04.237553 | Balanced                  | NaN                        | Plain                | Bernoulli             | 0.456448                 | 5            | 3                  | 0.008498             | 0.792675         | COMPLETE |
+| **405** | 405    | 0.797176 | 2023-04-05 10:16:28.725174 | 2023-04-05 10:16:36.881549 | 0 days 00:00:08.156375 | Balanced                  | NaN                        | Plain                | MVS                   | 0.621226                 | 8            | 6                  | 0.007098             | NaN              | COMPLETE |
+| **132** | 132    | 0.795892 | 2023-04-05 10:14:25.308314 | 2023-04-05 10:14:30.413653 | 0 days 00:00:05.105339 | Balanced                  | NaN                        | Plain                | MVS                   | 0.606308                 | 8            | 3                  | 0.006538             | NaN              | COMPLETE |
+
+
+
+```python
+# История изменения от числа испытаний
+optuna.visualization.plot_optimization_history(study)
+# Зависимость в разрезе по параметрам
+params = ['l2_leaf_reg', 'colsample_bylevel', 'bagging_temperature', 'depth', 'bootstrap_type', 'subsample']
+optuna.visualization.plot_slice(study,
+                                params=params,
+                                target_name = 'accuracy_score')
+# Важность параметров
+optuna.visualization.plot_param_importances(study)
+```
+
+## Прунинг
+
+Прунинг — способ не идти по тупиковым траекториям перебора. В `Optuna` реализован параллельный поиск гиперпараметров. Поиск стартует из нескольких рандомных мест и далее развивается по своей уникальной траектории. **Прунинг** — возможность останавливать поиск, когда обучающая кривая становится хуже прошлых лучших результатов, тем самым ускоряя процесс поиска.
+
+![image-20240317203108243](assets/image-20240317203108243.png)
+
+Реализации прунеров есть для большинства известных ML-фреймворков. Например, `callbacks` для бустингов:
+
+- `CatBoost : optuna.integration.CatBoostPruningCallback`;
+- `XGBoost : optuna.integration.XGBoostPruningCallback`;
+- `LightGBM : optuna.integration.LightGBMPruningCallback`.
+
+**Основные виды прунеров:**
+
+- `Median Pruner` — самый популярный, каждые несколько итераций отбрасывает половину процессов с наихудшим качеством.
+- `Successive Halving Algorithm` (SHA) — сначала запускаем `trials` с минимальными ресурсами (мало обучающих примеров, мало итераций) и на каждом следующем шаге отсекаем половину `trials` с худшим качеством и увеличиваем ресурсы.
+- `Percentile Pruner`, `Hyperband Pruner` и др.
+
+Чтобы использовать прунинг в `CatBoost`, немного дополним функцию `Objective`:
+
+```python
+from optuna.integration import CatBoostPruningCallback
+
+
+def objective_catboost(trial):
+    X = train[filtered_features].drop(targets, axis=1, errors="ignore")
+    y = train["target_class"]
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.2, random_state=42
+    )
+
+    param = {
+        'iterations' : 250,
+        "learning_rate": trial.suggest_float("learning_rate", 0.001, 0.01),
+        "l2_leaf_reg": trial.suggest_int("l2_leaf_reg", 2, 17),
+        "colsample_bylevel": trial.suggest_float("colsample_bylevel", 0.01, 0.1),
+        
+        "auto_class_weights": trial.suggest_categorical("auto_class_weights", ["SqrtBalanced", "Balanced", "None"]),
+        "depth": trial.suggest_int("depth", 4, 9),
+        
+        "boosting_type": trial.suggest_categorical("boosting_type", ["Ordered", "Plain"]),
+        "bootstrap_type": trial.suggest_categorical("bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]),
+        "used_ram_limit": "12gb",
+        
+        "eval_metric": "Accuracy",
+    }
+
+    if param["bootstrap_type"] == "Bayesian":
+        param["bagging_temperature"] = trial.suggest_float("bagging_temperature", 0, 10)
+    elif param["bootstrap_type"] == "Bernoulli":
+        param["subsample"] = trial.suggest_float("subsample", 0.1, 1)
+
+    clf = CatBoostClassifier(
+        **param, thread_count=-1, random_seed=42, cat_features=cat_features
+    )
+
+    # Создаем объект callback
+    pruning_callback = CatBoostPruningCallback(trial, "Accuracy")
+
+    clf.fit(
+        X_train,
+        y_train,
+        eval_set=(X_test, y_test),
+        verbose=0,
+        plot=False,
+        early_stopping_rounds=5,
+        callbacks=[pruning_callback],
+    )  # Добавляем callback в fit
+
+    # Запускаем процесс прунинга
+    pruning_callback.check_pruned()
+
+    y_pred = clf.predict(X_test)
+    accuracy = accuracy_score(y_pred, y_test)
+    return accuracy
+```
+
+Функция прунинга добавляется в функцию `create_study` в параметр `pruner`. Воспользуемся `MedianPruner`:
+
+```python
+# study = optuna.create_study(
+#     pruner=optuna.pruners.MedianPruner(n_warmup_steps=5),
+#     direction="maximize",
+# )
+
+# study.optimize(objective_catboost,
+#                n_trials=1000,
+#                n_jobs = -1,
+#               )
+print("Number of finished trials: {}".format(len(study.trials)))
+print("Best trial:")
+trial = study.best_trial
+print("  Value: {}".format(trial.value))
+print("  Params: ")
+
+for key, value in trial.params.items():
+    print("    {}: {}".format(key, value))
+```
+
+При схожей точности поиск завершился заметно быстрее.
+
+## Выводы
+
+- Как правило, подбор гиперпараметров не сильно улучшает качество моделей (но улучшает).
+- `Optuna` работает эффективнее перебора.
+- В `Optuna` есть способы не делать лишнюю работу.
+- Визуализация позволяет отбросить лишние параметры и сократить диапазоны значений.
+
+## Литература для дополнительного изучения
+
+- [Ali Soleymani. Grid search and random search are outdated. This approach outperforms both](https://medium.com/@ali.soleymani.co/stop-using-grid-search-or-random-search-for-hyperparameter-tuning-c2468a2ff887)
+- [Препроцессинг датасетов](https://t.me/ds_private_sharing/60)
+- [Официальные туториалы](https://optuna.readthedocs.io/en/stable/tutorial/index.html)
+- [Виды прунеров](https://optuna.readthedocs.io/en/stable/reference/pruners.html)
